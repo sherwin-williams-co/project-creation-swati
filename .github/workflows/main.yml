@@ -1,0 +1,45 @@
+name: Create GitHub Project v2 via GraphQL
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: 'Project Name'
+        required: true
+      project_description:
+        description: 'Project Description'
+        required: false
+
+jobs:
+  create_project:
+    runs-on: ubuntu-latest
+    env:
+      GH_PAT: ${{ secrets.PAT_GITHUB }}
+      OWNER_NODE_ID: "<YOUR_NODE_ID>"   # <<------ REPLACE THIS VALUE WITH YOUR user/org node_id IN QUOTES
+    steps:
+      - name: Create GitHub Project (v2) via curl
+        run: |
+          # Get inputs from workflow_dispatch
+          PROJECT_NAME="${{ github.event.inputs.project_name }}"
+          PROJECT_DESC="${{ github.event.inputs.project_description }}"
+          # If no description supplied, set empty string (avoid null)
+          [ -z "$PROJECT_DESC" ] && PROJECT_DESC=""
+
+          # Format GraphQL mutation, collapse newlines
+          QUERY="mutation { createProjectV2(input: { ownerId: \\\"${OWNER_NODE_ID}\\\", title: \\\"${PROJECT_NAME}\\\", shortDescription: \\\"${PROJECT_DESC}\\\" }) { projectV2 { id title url } } }"
+
+          # Call the GitHub GraphQL API
+          RESPONSE=$(curl -s -X POST https://api.github.com/graphql \
+            -H "Authorization: Bearer $GH_PAT" \
+            -H "Content-Type: application/json" \
+            -d "{\"query\": \"$QUERY\"}")
+
+          echo "$RESPONSE"
+          # Extract and print the project URL if successful
+          PROJECT_URL=$(echo "$RESPONSE" | grep -o '"url":"[^"]*' | cut -d'"' -f4)
+          if [ -n "$PROJECT_URL" ]; then
+            echo "✅ Project created: $PROJECT_URL"
+          else
+            echo "❌ Failed to create GitHub Project!"
+            exit 1
+          fi
