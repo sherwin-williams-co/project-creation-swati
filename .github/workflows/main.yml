@@ -1,27 +1,35 @@
-name: Create Project
+name: Create Organization Project
 
 on:
   workflow_dispatch:
+    inputs:
+      org:
+        description: 'Organization Name'
+        required: true
+      project_name:
+        description: 'Project Name'
+        required: true
+      project_body:
+        description: 'Project Description'
+        required: false
 
 jobs:
   create_project:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Project using GraphQL API
-        env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
-          ORG: sherwin-williams-co  # Replace with your GitHub organization
-        run: |
-          # Fetch the organization ID
-          ORG_ID=$(curl -X POST \
-            -H "Authorization: bearer $GH_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"query":"query { organization(login: \"'$ORG'\") { id } }"}' \
-            https://api.github.com/graphql | jq -r '.data.organization.id')
+      - name: Create Organization Project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const org = '${{ github.event.inputs.org }}'
+            const name = '${{ github.event.inputs.project_name }}'
+            const body = '${{ github.event.inputs.project_body || '' }}'
 
-          # Create the project
-          curl -X POST \
-            -H "Authorization: bearer $GH_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"query":"mutation { createProjectV2(input: {ownerId: \"'$ORG_ID'\", title: \"GitHub Actions Project\"}) { projectV2 { id } } }"}' \
-            https://api.github.com/graphql
+            const response = await github.rest.projects.createOrgProject({
+              org,
+              name,
+              body,
+            });
+
+            core.info(`Created Project: ${response.data.html_url}`);
