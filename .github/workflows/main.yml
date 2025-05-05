@@ -12,8 +12,16 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_GITHUB }}
           ORG: sherwin-williams-co  # Replace with your GitHub organization
         run: |
+          # Fetch the organization ID
+          ORG_ID=$(curl -X POST \
+            -H "Authorization: bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { organization(login: \"'$ORG'\") { id } }"}' \
+            https://api.github.com/graphql | jq -r '.data.organization.id')
+
+          # Create the project
           curl -X POST \
             -H "Authorization: bearer $GH_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{"query":"mutation { createProjectV2(input: {ownerId: \"MDEyOk9yZ2FuaXphdGlvbjE2MjY1\", title: \"GitHub Actions Project\", description: \"Created by workflow\"}) { projectV2 { id } } }"}' \
+            -d '{"query":"mutation { createProjectV2(input: {ownerId: \"'$ORG_ID'\", title: \"GitHub Actions Project\"}) { projectV2 { id } } }"}' \
             https://api.github.com/graphql
