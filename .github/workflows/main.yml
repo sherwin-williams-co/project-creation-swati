@@ -20,7 +20,7 @@ jobs:
       - name: Create Organization Project
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.PAT_GITHUB }}
           script: |
             const org = '${{ github.event.inputs.org }}'
             const name = '${{ github.event.inputs.project_name }}'
