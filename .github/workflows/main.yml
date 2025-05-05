@@ -1,4 +1,4 @@
-name: Create Classic Project
+name: Create Project
 
 on:
   workflow_dispatch:
@@ -7,13 +7,13 @@ jobs:
   create_project:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Classic Project using REST API
+      - name: Create Project using REST API
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
+          ORG: sherwin-williams-co  # Replace with your GitHub organization
         run: |
           curl -X POST \
             -H "Authorization: token $GH_TOKEN" \
-            -H "Accept: application/vnd.github.inertia-preview+json" \
-            https://api.github.com/repos/$REPO/projects \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/orgs/$ORG/projects \
             -d '{"name":"GitHub Actions Project","body":"Created by workflow"}'
