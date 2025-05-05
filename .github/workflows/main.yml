@@ -7,13 +7,13 @@ jobs:
   create_project:
     runs-on: ubuntu-latest
     steps:
-      - name: Create Project using REST API
+      - name: Create Project using GraphQL API
         env:
           GH_TOKEN: ${{ secrets.PAT_GITHUB }}
           ORG: sherwin-williams-co  # Replace with your GitHub organization
         run: |
           curl -X POST \
-            -H "Authorization: token $GH_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/orgs/$ORG/projects \
-            -d '{"name":"GitHub Actions Project","body":"Created by workflow"}'
+            -H "Authorization: bearer $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"mutation { createProjectV2(input: {ownerId: \"MDEyOk9yZ2FuaXphdGlvbjE2MjY1\", title: \"GitHub Actions Project\", description: \"Created by workflow\"}) { projectV2 { id } } }"}' \
+            https://api.github.com/graphql
