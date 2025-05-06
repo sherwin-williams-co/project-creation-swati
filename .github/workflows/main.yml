@@ -22,14 +22,12 @@ jobs:
         with:
           github-token: ${{ secrets.PAT_GITHUB }}
           script: |
-            const org = '${{ github.event.inputs.org }}'
-            const name = '${{ github.event.inputs.project_name }}'
-            const body = '${{ github.event.inputs.project_body || '' }}'
-
-            const response = await github.rest.projects.createOrgProject({
+            const org = '${{ github.event.inputs.org }}';
+            const name = '${{ github.event.inputs.project_name }}';
+            const body = '${{ github.event.inputs.project_body || '' }}';
+            const response = await github.rest.projects.createForOrg({
               org,
               name,
               body,
             });
-
             core.info(`Created Project: ${response.data.html_url}`);
