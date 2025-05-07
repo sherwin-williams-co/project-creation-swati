@@ -2,7 +2,7 @@ import os
 import requests
 
 # Fetch environment variables with a default value if not set
-GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+GITHUB_TOKEN = os.getenv('GH_TOKEN')
 ORG = "sherwin-williams-co"
 PROJECT_TITLE = "test_swati_project"
 
