@@ -14,4 +14,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        python project-ceation.py
+        python project-creation.py
